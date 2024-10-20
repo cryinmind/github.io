@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>命理分析卡片生成器</title>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+        h1 {
+            color: #333333;
+        }
+        .input-section {
+            margin: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 80px;
+            text-align: right;
+        }
+        select, input {
+            margin: 10px;
+        }
+        #svg-container {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>命理分析卡片生成器</h1>
+    <div class="input-section">
+        <div>
+            <label for="zodiac">星座：</label>
+            <select id="zodiac">
+                <option value="">請選擇</option>
+                <option value="白羊座">白羊座</option>
+                <option value="金牛座">金牛座</option>
+                <option value="雙子座">雙子座</option>
+                <option value="巨蟹座">巨蟹座</option>
+                <option value="獅子座">獅子座</option>
+                <option value="處女座">處女座</option>
+                <option value="天秤座">天秤座</option>
+                <option value="天蠍座">天蠍座</option>
+                <option value="射手座">射手座</option>
+                <option value="摩羯座">摩羯座</option>
+                <option value="水瓶座">水瓶座</option>
+                <option value="雙魚座">雙魚座</option>
+            </select>
+        </div>
+        <div>
+            <label for="mbti">MBTI：</label>
+            <select id="mbti">
+                <option value="">請選擇</option>
+                <option value="INTJ">INTJ</option>
+                <option value="INTP">INTP</option>
+                <option value="ENTJ">ENTJ</option>
+                <option value="ENTP">ENTP</option>
+                <option value="INFJ">INFJ</option>
+                <option value="INFP">INFP</option>
+                <option value="ENFJ">ENFJ</option>
+                <option value="ENFP">ENFP</option>
+                <option value="ISTJ">ISTJ</option>
+                <option value="ISFJ">ISFJ</option>
+                <option value="ESTJ">ESTJ</option>
+                <option value="ESFJ">ESFJ</option>
+                <option value="ISTP">ISTP</option>
+                <option value="ISFP">ISFP</option>
+                <option value="ESTP">ESTP</option>
+                <option value="ESFP">ESFP</option>
+            </select>
+        </div>
+        <div>
+            <label for="chineseZodiac">生肖：</label>
+            <select id="chineseZodiac">
+                <option value="">請選擇</option>
+                <option value="鼠">鼠</option>
+                <option value="牛">牛</option>
+                <option value="虎">虎</option>
+                <option value="兔">兔</option>
+                <option value="龍">龍</option>
+                <option value="蛇">蛇</option>
+                <option value="馬">馬</option>
+                <option value="羊">羊</option>
+                <option value="猴">猴</option>
+                <option value="雞">雞</option>
+                <option value="狗">狗</option>
+                <option value="豬">豬</option>
+            </select>
+        </div>
+        <div>
+            <label for="bloodType">血型：</label>
+            <select id="bloodType">
+                <option value="">請選擇</option>
+                <option value="A">A型</option>
+                <option value="B">B型</option>
+                <option value="AB">AB型</option>
+                <option value="O">O型</option>
+            </select>
+        </div>
+        <button onclick="generateCard()">生成命理分析卡片</button>
+    </div>
+    <div id="svg-container"></div>
+
+    <script>
+        function generateCard() {
+            const zodiac = document.getElementById('zodiac').value;
+            const mbti = document.getElementById('mbti').value;
+            const chineseZodiac = document.getElementById('chineseZodiac').value;
+            const bloodType = document.getElementById('bloodType').value;
+
+            const userFeatures = [];
+            if (zodiac) userFeatures.push({ type: '星座', value: zodiac });
+            if (mbti) userFeatures.push({ type: 'MBTI', value: mbti });
+            if (chineseZodiac) userFeatures.push({ type: '生肖', value: chineseZodiac });
+            if (bloodType) userFeatures.push({ type: '血型', value: bloodType });
+
+            if (userFeatures.length < 2) {
+                alert('請至少選擇其中兩項特徵。');
+                return;
+            }
+
+            // 加載特徵數據庫
+            const featureDatabase = loadFeatureDatabase();
+            // 提取核心特質
+            const coreTraits = extractCoreTraits(userFeatures, featureDatabase);
+            // 生成運勢預測
+            const fortunePrediction = generateFortune(userFeatures, featureDatabase);
+
+            // 生成SVG卡片
+            const svgContent = createSVGCard(userFeatures, coreTraits, fortunePrediction);
+            document.getElementById('svg-container').innerHTML = svgContent;
+        }
+
+        function loadFeatureDatabase() {
+            // 模擬的特徵數據庫，每個特徵包含至少三個描述詞
+            return {
+                '星座': {
+                    '白羊座': ['熱情', '勇敢', '自信'],
+                    '金牛座': ['穩重', '務實', '可靠'],
+                    '雙子座': ['機智', '多變', '好奇'],
+                    '巨蟹座': ['敏感', '溫柔', '顧家'],
+                    '獅子座': ['自信', '慷慨', '領導力'],
+                    '處女座': ['細心', '完美主義', '實際'],
+                    '天秤座': ['公平', '社交', '優雅'],
+                    '天蠍座': ['神秘', '深情', '堅毅'],
+                    '射手座': ['自由', '樂觀', '冒險'],
+                    '摩羯座': ['勤奮', '責任感', '紀律'],
+                    '水瓶座': ['創新', '獨立', '博愛'],
+                    '雙魚座': ['浪漫', '同情心', '直覺']
+                },
+                'MBTI': {
+                    'INTJ': ['戰略性', '獨立', '果斷'],
+                    'INTP': ['邏輯', '探究', '抽象'],
+                    'ENTJ': ['領導力', '自信', '效率'],
+                    'ENTP': ['機智', '多才', '好奇'],
+                    'INFJ': ['洞察力', '理想主義', '關懷'],
+                    'INFP': ['忠誠', '敏感', '理想主義'],
+                    'ENFJ': ['魅力', '熱情', '外交'],
+                    'ENFP': ['熱情', '創造性', '社交'],
+                    'ISTJ': ['務實', '可靠', '有序'],
+                    'ISFJ': ['體貼', '忠誠', '細心'],
+                    'ESTJ': ['現實', '組織', '領導'],
+                    'ESFJ': ['友好', '慷慨', '忠誠'],
+                    'ISTP': ['靈活', '實際', '冷靜'],
+                    'ISFP': ['藝術性', '適應性', '謙遜'],
+                    'ESTP': ['大膽', '直接', '感性'],
+                    'ESFP': ['活力', '愛社交', '樂觀']
+                },
+                '生肖': {
+                    '鼠': ['機智', '靈活', '樂觀'],
+                    '牛': ['勤奮', '可靠', '耐心'],
+                    '虎': ['勇敢', '自信', '冒險'],
+                    '兔': ['溫和', '善良', '敏感'],
+                    '龍': ['強大', '自信', '熱情'],
+                    '蛇': ['神秘', '智慧', '優雅'],
+                    '馬': ['自由', '活力', '獨立'],
+                    '羊': ['溫柔', '同情', '藝術性'],
+                    '猴': ['聰明', '機智', '幽默'],
+                    '雞': ['勤勞', '實際', '精確'],
+                    '狗': ['忠誠', '誠實', '可靠'],
+                    '豬': ['慷慨', '善良', '誠實']
+                },
+                '血型': {
+                    'A': ['有條理', '認真', '可靠'],
+                    'B': ['靈活', '樂觀', '自由'],
+                    'AB': ['理性', '冷靜', '客觀'],
+                    'O': ['自信', '果斷', '開朗']
+                }
+            };
+        }
+
+        function extractCoreTraits(userFeatures, featureDatabase) {
+            // 將所有特徵的描述詞合併，然後隨機選取兩個作為核心特質
+            let traits = [];
+            userFeatures.forEach(feature => {
+                const descriptions = featureDatabase[feature.type][feature.value];
+                traits = traits.concat(descriptions);
+            });
+            traits = [...new Set(traits)]; // 去重
+            const coreTraits = traits.sort(() => 0.5 - Math.random()).slice(0, 2).map(trait => trait + '者');
+            return coreTraits;
+        }
+
+        function generateFortune(userFeatures, featureDatabase) {
+            // 根據特徵生成運勢預測
+            const fortunes = {
+                '熱情': '你的熱情將帶來新的機會。',
+                '勇敢': '勇敢面對挑戰，成功在望。',
+                '自信': '自信將助你達成目標。',
+                '穩重': '穩重的態度會獲得他人信任。',
+                '機智': '機智的你會化解難題。',
+                '敏感': '敏銳的直覺將指引你前進。',
+                '創新': '創新的想法將帶來驚喜。',
+                '獨立': '獨立的你將迎來新的突破。',
+                '忠誠': '忠誠的品質將獲得回報。',
+                '勤奮': '勤奮工作會帶來豐厚成果。',
+                '樂觀': '保持樂觀，幸福就在眼前。',
+                '自由': '自由的心靈將探索未知的領域。'
+            };
+
+            let userTraits = [];
+            userFeatures.forEach(feature => {
+                const descriptions = featureDatabase[feature.type][feature.value];
+                userTraits = userTraits.concat(descriptions);
+            });
+            userTraits = [...new Set(userTraits)];
+
+            let userFortunes = userTraits.map(trait => fortunes[trait]).filter(fortune => fortune);
+            if (userFortunes.length < 2) {
+                userFortunes = ['近期運勢平穩，保持本心。', '機會隨時出現，請耐心等待。'];
+            } else {
+                userFortunes = userFortunes.slice(0, 2);
+            }
+
+            return userFortunes;
+        }
+
+        function createSVGCard(userFeatures, coreTraits, fortunePrediction) {
+            // 定義畫布和樣式
+            const width = 800;
+            const height = 1000;
+            const fontFamily = "'Noto Sans TC', sans-serif";
+            const mainColor = "#333333";
+            const featureColors = {
+                '星座': '#B5D6F4',
+                'MBTI': '#EAD6F3',
+                '生肖': '#FFCCCB',
+                '血型': '#C8F7C5',
+                '核心': '#FFF2CC'
+            };
+
+            // 計算位置
+            function calculateXPosition(featureType) {
+                if (featureType === '星座' || featureType === '生肖') return 280;
+                if (featureType === 'MBTI' || featureType === '血型') return 520;
+                return 400;
+            }
+
+            function calculateYPosition(featureType) {
+                if (featureType === '星座' || featureType === 'MBTI') return 380;
+                if (featureType === '生肖' || featureType === '血型') return 620;
+                return 500;
+            }
+
+            // 生成SVG內容
+            let svgContent = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+                </style>
+                <rect width="${width}" height="${height}" fill="#ffffff"></rect>
+                <text x="${width / 2}" y="80" font-family=${fontFamily} font-size="40" fill=${mainColor} text-anchor="middle" font-weight="bold">命理大師</text>
+            `;
+
+            // 繪製主要圓圈和特徵文字
+            userFeatures.forEach(feature => {
+                const x = calculateXPosition(feature.type);
+                const y = calculateYPosition(feature.type);
+                svgContent += `
+                    <circle cx="${x}" cy="${y}" r="180" fill="${featureColors[feature.type]}" opacity="0.3"></circle>
+                    <text x="${x}" y="${y - 30}" font-family=${fontFamily} font-size="28" fill=${mainColor} text-anchor="middle" font-weight="bold">${feature.value}</text>
+                `;
+
+                const descriptions = loadFeatureDatabase()[feature.type][feature.value];
+                svgContent += `
+                    <text x="${x}" y="${y + 10}" font-family=${fontFamily} font-size="18" fill=${mainColor} text-anchor="middle">${descriptions[0]} ${descriptions[1]}</text>
+                    <text x="${x}" y="${y + 40}" font-family=${fontFamily} font-size="18" fill=${mainColor} text-anchor="middle">${descriptions[2]}</text>
+                `;
+            });
+
+            // 繪製核心特質
+            svgContent += `
+                <circle cx="400" cy="500" r="100" fill="${featureColors['核心']}" opacity="0.5"></circle>
+                <text x="400" y="480" font-family=${fontFamily} font-size="24" fill=${mainColor} text-anchor="middle" font-weight="bold">核心特質</text>
+                <text x="400" y="520" font-family=${fontFamily} font-size="20" fill=${mainColor} text-anchor="middle">${coreTraits[0]}</text>
+                <text x="400" y="550" font-family=${fontFamily} font-size="20" fill=${mainColor} text-anchor="middle">${coreTraits[1]}</text>
+            `;
+
+            // 繪製運勢預測
+            svgContent += `
+                <text x="400" y="820" font-family=${fontFamily} font-size="24" fill=${mainColor} text-anchor="middle" width="700">
+                    <tspan x="400" dy="0">${fortunePrediction[0]}</tspan>
+                    <tspan x="400" dy="35">${fortunePrediction[1]}</tspan>
+                </text>
+            `;
+
+            svgContent += `</svg>`;
+            return svgContent;
+        }
+    </script>
+</body>
+</html>
